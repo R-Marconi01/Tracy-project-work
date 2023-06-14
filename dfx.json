@@ -5,9 +5,7 @@
       "type": "motoko"
     },
     "ProjectWork_frontend": {
-      "dependencies": [
-        "ProjectWork_backend"
-      ],
+      "dependencies": ["ProjectWork_backend"],
       "frontend": {
         "entrypoint": "src/ProjectWork_frontend/src/index.html"
       },
@@ -21,7 +19,7 @@
   "defaults": {
     "build": {
       "args": "",
-      "packtool": ""
+      "packtool": "mops sources"
     }
   },
   "output_env_file": ".env",

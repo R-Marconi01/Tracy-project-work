@@ -19,7 +19,9 @@
   "dependencies": {
     "@dfinity/agent": "^0.15.6",
     "@dfinity/candid": "^0.15.6",
-    "@dfinity/principal": "^0.15.6"
+    "@dfinity/principal": "^0.15.6",
+    "ic-mops": "^0.14.0",
+    "uninstall": "^0.0.0"
   },
   "devDependencies": {
     "assert": "2.0.0",

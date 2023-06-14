@@ -1,19 +1,58 @@
+const newRowForm = document.getElementById("newRowForm");
+
+//Note we will use "ProjectWork_backend" in this JavaScript code a few times to call the backend
 import { ProjectWork_backend } from "../../declarations/ProjectWork_backend";
 
-document.querySelector("form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const button = e.target.querySelector("button");
+const backendCI = "ajuq4-ruaaa-aaaaa-qaaga-cai";
 
-  const name = document.getElementById("name").value.toString();
+//1. LOCAL DATA
 
-  button.setAttribute("disabled", true);
+//2. EVENT LISTENERS
 
-  // Interact with foo actor, calling the greet method
-  const greeting = await ProjectWork_backend.greet(name);
+document.addEventListener(
+  "DOMContentLoaded",
+  async (e) => {
+    e.preventDefault();
 
-  button.removeAttribute("disabled");
+    return false;
+  },
+  false
+);
 
-  document.getElementById("greeting").innerText = greeting;
+//Event listener that listens for when the form is submitted.
+//When the form is submitted with an option, it calls the backend canister
+//via "await ProjectWork_backend.vote(selectedOption)"
+newRowForm.addEventListener(
+  "submit",
+  async (e) => {
+    e.preventDefault();
 
-  return false;
-});
+    const file = document.getElementById("file").value.toString();
+    const formData = getFormJson();
+    const blob = new Blob([file], { type: "application/pdf" });
+    const arrayBuffer = [...new Uint8Array(await blob.arrayBuffer())];
+
+    formData.file = arrayBuffer;
+
+    // Interact with foo actor, calling the greet method
+    const res = await fetch(`/add_row?canisterId=${backendCI}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const newRow = await res.json();
+
+    return false;
+  },
+  false
+);
+
+//3. HELPER FUNCTIONS
+function getFormJson() {
+  return {
+    file: document.getElementById("file").value,
+  };
+}
