@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simple poll dapp hosted on an ICP canister smart contract</title>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.4.0/js/canvas-to-blob.min.js"></script>
+
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -103,6 +105,25 @@
           ><br />
           <button type="submit">Create</button>
         </form>
+      </div>
+
+      <div>
+        <object
+          id="object"
+          data="https://pdfjs-express.s3-us-west-2.amazonaws.com/docs/choosing-a-pdf-viewer.pdf"
+          type="application/pdf"
+          width="500"
+          height="678"
+        >
+          <iframe
+            id="iframe"
+            src="https://pdfjs-express.s3-us-west-2.amazonaws.com/docs/choosing-a-pdf-viewer.pdf"
+            width="500"
+            height="678"
+          >
+            <p>This browser does not support PDF!</p>
+          </iframe>
+        </object>
       </div>
     </div>
   </body>

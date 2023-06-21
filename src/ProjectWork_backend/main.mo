@@ -19,17 +19,13 @@ shared ({ caller = creator }) actor class () {
   type Response = Server.Response;
   type HttpRequest = Server.HttpRequest;
   type HttpResponse = Server.HttpResponse;
-  type Row = {
-    id : Nat;
-    companyName : Text;
-    cityDestination : Text;
-    supplier : Text;
-    cityOrigin : Text;
-    productType : Text;
-    quantity : Nat;
-  };
 
-  let db = Buffer.Buffer<Row>(3);
+  type FileObject = {
+    filename : Text;
+  };
+  
+  stable var files = Trie.empty<Text, Blob>();
+  func key(x : Text) : Trie.Key<Text> { { key = x; hash = Text.hash(x) } };
 
   stable var cacheStorage : Server.SerializedEntries = ([], [], [creator]);
 
@@ -57,33 +53,25 @@ shared ({ caller = creator }) actor class () {
     ignore server.cache.pruneAll();
   };
 
-  server.get(
-    "/get_row_db", func(req, res) : Response {
-      var counter = 0;
-
-      var rowJson = "[ ";
-      for (row in db.vals()) {
-        rowJson := rowJson # "\"" # Nat.toText(counter) # "\": { \"id\": \"" # Nat.toText(row.id) # "\", \"companyName\": \"" # row.companyName # "\", \"cityDestination\": \"" # row.cityDestination # "\", \"supplier\": \"" # row.supplier # "\", \"cityOrigin\": \"" # row.cityOrigin # "\", \"productType\": \"" # row.productType # "\", \"quantity\": " # Nat.toText(row.quantity) # " }, ";
-        counter += 1;
-      };
-      rowJson := Text.trimEnd(rowJson, #text ", ");
-      rowJson := rowJson # " ]";
-
-      res.json({
-        status_code = 200;
-        body = rowJson;
-        cache_strategy = #noCache;
-      });
-    },
-  );
-
-  func processRow(data : Text) : ?Row{
+  func processFileObject(data : Text) : ?FileObject {
     let blob = serdeJson.fromText(data);
     from_candid (blob);
   };
 
+  public func store(path : Text, content : Blob) {
+    let (newFiles, existing) = Trie.put(
+      files, // Target trie
+      key(path), // Key
+      Text.equal, // Equality checker
+      content,
+    );
+
+    files := newFiles;
+  };
+
   server.post(
-    "/add_row", func(req, res) : Response {
+    "/file.pdf",
+    func(req, res) : Response {
       let body = req.body;
       switch body {
         case null {
@@ -99,34 +87,43 @@ shared ({ caller = creator }) actor class () {
         case (?body) {
           let bodyText = body.text();
           Debug.print(bodyText);
-          let row = processRow(bodyText);
-          switch (row) {
+          let fileObj = processFileObject(bodyText);
+          switch fileObj {
             case null {
-              Debug.print("row not parsed");
               res.send({
                 status_code = 400;
                 headers = [];
-                body = Text.encodeUtf8("Invalid JSON");
+                body = Text.encodeUtf8("Error in process json.");
                 streaming_strategy = null;
                 cache_strategy = #noCache;
               });
             };
-            case (?row) {
-              db.add(row);
-              res.json({
-                status_code = 200;
-                body = bodyText;
-                cache_strategy = #noCache;
-              });
-            };
-          };
+            case (?fileObj) {
+              let file = Trie.get(files, key(fileObj.filename), Text.equal);
+              switch file {
+                case null {
+                  return res.send({
+                    status_code = 404;
+                    headers = [];
+                    body = Text.encodeUtf8("File not found");
+                    streaming_strategy = null;
+                    cache_strategy = #noCache;
+                  });
+                };
+                case (?blob) {
+                  return res.send({
+                    status_code = 200;
+                    headers = [("Content-Type", "application/pdf")];
+                    body = blob;
+                    streaming_strategy = null;
+                    cache_strategy = #default;
+                  });
+                };
+              };
+            }
+          }
         };
       };
     },
   );
-
-  public func getDB() : async [Row] {
-    Buffer.toArray(db);
-  };
-
 };
