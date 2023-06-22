@@ -1,6 +1,6 @@
 # ProjectWork
 
-Per installare i pacchetti:
+Install packages:
 https://mops.one/docs/install
 
 ```bash
@@ -8,7 +8,7 @@ mops install
 npm install
 ```
 
-Per runnare e stoppare:
+Run and stop:
 
 ```bash
 dfx start --background
