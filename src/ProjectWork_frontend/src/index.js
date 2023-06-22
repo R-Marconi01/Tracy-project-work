@@ -4,7 +4,7 @@ const fetch = require("isomorphic-fetch");
 const { replica, HttpAgent } = ic;
 var agent, backend;
 
-const newRowForm = document.getElementById("newRowForm");
+const uploadBtn = document.getElementById("uploadBtn");
 
 //Note we will use "ProjectWork_backend" in this JavaScript code a few times to call the backend
 import { ProjectWork_backend } from "../../declarations/ProjectWork_backend";
@@ -12,6 +12,7 @@ import { ProjectWork_backend } from "../../declarations/ProjectWork_backend";
 const backendCI = "c5kvi-uuaaa-aaaaa-qaaia-cai";
 
 //1. LOCAL DATA
+const documentList = [];
 
 //2. EVENT LISTENERS
 
@@ -29,10 +30,12 @@ document.addEventListener(
   false
 );
 
-newRowForm.addEventListener(
-  "submit",
+uploadBtn.addEventListener(
+  "click",
   async (e) => {
     e.preventDefault();
+
+    debugger;
 
     var file = document.getElementById("file").files[0];
     var reader = new FileReader();
@@ -43,7 +46,8 @@ newRowForm.addEventListener(
 
       await backend.call("store", `${name}`, data);
 
-      displayPdf(file.name);
+      updateLocalDocumentList(file);
+      updateTable();
     };
     reader.readAsDataURL(file);
 
@@ -53,7 +57,47 @@ newRowForm.addEventListener(
 );
 
 //3. HELPER FUNCTIONS
+function updateLocalDocumentList(file) {
+  debugger;
+
+  let value = file.name;
+  documentList.push(value);
+}
+
+function updateTable() {
+  debugger;
+
+  document.getElementById("table-body").innerHTML = "";
+  for (let key in documentList) {
+    let tr = document.createElement("tr");
+
+    let th = document.createElement("th");
+    th.setAttribute("scope", "row");
+    th.textContent = key;
+
+    let td = document.createElement("td");
+    td.textContent = documentList[key];
+
+    let td2 = document.createElement("td");
+    let button = document.createElement("button");
+    button.classList.add("btn");
+    button.classList.add("btn-outline-secondary");
+    button.textContent = "View";
+    button.onclick = function () {
+      displayPdf(documentList[key]);
+    };
+    td2.appendChild(button);
+
+    tr.appendChild(th);
+    tr.appendChild(td);
+    tr.appendChild(td2);
+
+    document.getElementById("table-body").appendChild(tr);
+  }
+}
+
 async function displayPdf(fileName) {
+  debugger;
   let fileObj = { filename: fileName };
   const res = await fetch(`/file.pdf?canisterId=${backendCI}`, {
     method: "POST",
@@ -67,6 +111,8 @@ async function displayPdf(fileName) {
 
   var reader = new FileReader();
   reader.onload = async function () {
+    document.getElementById("object").classList.remove("d-none");
+    document.getElementById("iframe").classList.remove("d-none");
     document.getElementById("object").data = reader.result;
     document.getElementById("iframe").src = reader.result;
   };
