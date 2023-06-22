@@ -1,4 +1,5 @@
 # ProjectWork
+![](https://github.com/traso03/project-work/blob/main/mvp_sample.gif)
 
 Install packages:
 https://mops.one/docs/install
