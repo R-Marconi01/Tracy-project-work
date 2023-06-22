@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Simple poll dapp hosted on an ICP canister smart contract</title>
+    <title>Tracy Group MVP Project</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.4.0/js/canvas-to-blob.min.js"></script>
     <link
@@ -64,8 +64,9 @@
               </div>
             </div>
           </div>
-          <div class="row">
+          <div class="row mb-5">
             <div class="col-12">
+              <h4>Document table</h4>
               <table class="table table-striped table-hover">
                 <thead>
                   <tr>
@@ -75,6 +76,83 @@
                   </tr>
                 </thead>
                 <tbody id="table-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="row mt-5 mb-3">
+            <form id="jsonForm">
+              <div class="d-flex align-items-center justify-content-around">
+                <input
+                  type="text"
+                  class="form-control m-1"
+                  id="id"
+                  placeholder="ID"
+                />
+
+                <input
+                  type="text"
+                  class="form-control m-1"
+                  id="companyName"
+                  placeholder="Company Name"
+                />
+
+                <input
+                  type="text"
+                  class="form-control m-1"
+                  id="cityDestination"
+                  placeholder="City Destination"
+                />
+
+                <input
+                  type="text"
+                  class="form-control m-1"
+                  id="supplier"
+                  placeholder="Supplier"
+                />
+              </div>
+
+              <div class="d-flex align-items-center justify-content-around">
+                <input
+                  type="text"
+                  class="form-control m-1"
+                  id="cityOrigin"
+                  placeholder="City Origin"
+                />
+
+                <input
+                  type="text"
+                  class="form-control m-1"
+                  id="productType"
+                  placeholder="Product Type"
+                />
+
+                <input
+                  type="text"
+                  class="form-control m-1"
+                  id="quantity"
+                  placeholder="Quantity"
+                />
+
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </div>
+            </form>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <h4>JSON Table</h4>
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Company Name</th>
+                    <th scope="col">City Destination</th>
+                    <th scope="col">Supplier</th>
+                    <th scope="col">City Origin</th>
+                    <th scope="col">Product Type</th>
+                    <th scope="col">Quantity</th>
+                  </tr>
+                </thead>
+                <tbody id="table-body-json"></tbody>
               </table>
             </div>
           </div>
