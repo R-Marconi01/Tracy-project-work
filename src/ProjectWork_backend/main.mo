@@ -70,7 +70,7 @@ shared ({ caller = creator }) actor class () {
   };
 
   server.post(
-    "/file.pdf",
+    "/file",
     func(req, res) : Response {
       let body = req.body;
       switch body {
@@ -126,4 +126,91 @@ shared ({ caller = creator }) actor class () {
       };
     },
   );
+
+
+
+
+  type Row = {
+    id : Text;
+    companyName : Text;
+    cityDestination : Text;
+    supplier : Text;
+    cityOrigin : Text;
+    productType : Text;
+    quantity : Text;
+  };
+
+  let db = Buffer.Buffer<Row>(3);
+  
+  func processRow(data : Text) : ?Row{
+    let blob = serdeJson.fromText(data);
+    from_candid (blob);
+  };
+
+  server.post(
+    "/add-row", func(req, res) : Response {
+      let body = req.body;
+      switch body {
+        case null {
+          Debug.print("body not parsed");
+          res.send({
+            status_code = 400;
+            headers = [];
+            body = Text.encodeUtf8("Invalid JSON");
+            streaming_strategy = null;
+            cache_strategy = #noCache;
+          });
+        };
+        case (?body) {
+          let bodyText = body.text();
+          Debug.print(bodyText);
+          let row = processRow(bodyText);
+          switch (row) {
+            case null {
+              Debug.print("row not parsed");
+              res.send({
+                status_code = 400;
+                headers = [];
+                body = Text.encodeUtf8("Invalid JSON");
+                streaming_strategy = null;
+                cache_strategy = #noCache;
+              });
+            };
+            case (?row) {
+              db.add(row);
+              res.json({
+                status_code = 201;
+                body = "{ \"response\": \"ok\" }";
+                cache_strategy = #noCache;
+              });
+            };
+          };
+        };
+      };
+    },
+  );
+
+  server.get(
+    "/get-row-db", func(req, res) : Response {
+      var counter = 0;
+
+      var rowJson = "{ ";
+      for (row in db.vals()) {
+        rowJson := rowJson # "\"" # Nat.toText(counter) # "\": { \"id\": \"" # row.id # "\", \"companyName\": \"" # row.companyName # "\", \"cityDestination\": \"" # row.cityDestination # "\", \"supplier\": \"" # row.supplier # "\", \"cityOrigin\": \"" # row.cityOrigin # "\", \"productType\": \"" # row.productType # "\", \"quantity\": " # row.quantity # " }, ";
+        counter += 1;
+      };
+      rowJson := Text.trimEnd(rowJson, #text ", ");
+      rowJson := rowJson # " }";
+
+      res.json({
+        status_code = 200;
+        body = rowJson;
+        cache_strategy = #noCache;
+      });
+    },
+  );
+
+  public func getDB() : async [Row] {
+    Buffer.toArray(db);
+  };
 };
